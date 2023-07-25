@@ -6,7 +6,7 @@
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/14 09:52:31 by laugarci          #+#    #+#             */
-/*   Updated: 2023/07/25 12:16:14 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/07/25 19:00:02 by laugarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ void	exec_pipes(char *input, char **env, int num_pipes)
 	int		**fds;
 
 	i = 0;
-	fds = malloc(sizeof(int *) * num_pipes);
+	fds = malloc(sizeof(int *) * num_pipes); //protect malloc
 	while (i < num_pipes)
 	{
 		fds[i] = malloc(sizeof(int) * 2);

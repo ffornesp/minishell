@@ -6,13 +6,13 @@
 /*   By: ffornes- <ffornes-@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/27 12:51:14 by ffornes-          #+#    #+#             */
-/*   Updated: 2023/06/27 12:53:07 by ffornes-         ###   ########.fr       */
+/*   Updated: 2023/09/27 14:54:48 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 
-void	free_double(void **elem)
+void	*free_double(void **elem)
 {
 	char	**aux;
 	int		i;
@@ -25,4 +25,5 @@ void	free_double(void **elem)
 		i++;
 	}
 	free(aux);
+	return (NULL);
 }

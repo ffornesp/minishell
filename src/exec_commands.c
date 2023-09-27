@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/04 15:00:39 by laugarci          #+#    #+#             */
-/*   Updated: 2023/07/25 18:48:09 by laugarci         ###   ########.fr       */
+/*   Created: 2023/08/04 14:04:45 by laugarci          #+#    #+#             */
+/*   Updated: 2023/09/27 16:03:28 by laugarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,117 +18,92 @@
 #include <sys/wait.h>
 #include "libft.h"
 #include "minishell.h"
+#include "minishell_defs.h"
+#include "libft_bonus.h"
+#include "parser.h"
 
-int	exec_cd(char **input)
+static int	count_command(t_list *lst)
 {
-	if (input[1] == NULL)
+	t_token	*token;
+	int		i;
+
+	token = lst->content;
+	i = 0;
+	while (lst)
 	{
-		if (chdir(getenv("HOME")) == 1)
-			return (1);
+		i++;
+		lst = lst->next;
+		token = lst->content;
+		if (!token->string || token->type >= 0)
+			break ;
 	}
-	else if (access((input[1]), F_OK) != -1)
-	{
-		if (access(input[1], R_OK) == 0)
-		{
-			if (chdir(input[1]) == -1)
-			{
-				printf("minishell: cd: %s", input[1]);
-				printf(": No such file or directory\n");
-				return (1);
-			}
-		}
-		else
-		{
-			printf("minishell: cd: %s: Permission denied\n", input[1]);
-			return (1);
-		}
-	}
-	else
-	{
-		printf("minishell: cd: %s: No such file or directory\n", input[1]);
-		return (1);
-	}
-	return (0);
+	return (i);
 }
 
-int	cmp_commands(char *input, char **env)
+static char	**allocate_cmd(int size)
 {
-	char	**commands;
-	int		num_pipes;
+	char	**dst;
 
-	commands = ft_split(input, ' ');
-	if (ft_strncmp(input, "cd ", 3) == 0 || ft_strncmp(input, "cd\0", 3) == 0)
-		exec_cd(commands);
-	else if (is_pipe(input) == 1)
+	dst = malloc(sizeof(char *) * (size + 1));
+	if (!dst)
 	{
-		num_pipes = count_chars(input, '|');
-		exec_pipes(input, env, num_pipes);
+		print_error_and_return("Cannot allocate memory\n", 12);
+		return (NULL);
 	}
-	else
-		exec_commands(input, env);
-	free_double((void **)commands);
-	return (0);
+	return (dst);
 }
 
-int	exec_commands_wf(char *space_pos, char *input, char **env, char **split_com)
+static char	**full_cmd(t_list *lst, char **env)
 {
 	int		i;
-	char	**flags;
-	char	**args;
-	int		count_flags;
+	int		j;
+	char	**dst;
+	t_token	*token;
 
-	count_flags = count_chars(input, '-');
-	flags = ft_split(space_pos, ' ');
-	args = (char **)malloc(sizeof(char *) * (count_flags + 3));
-	if (!args)
-		return (1);
-	args[0] = get_path(split_com, env);
-	i = 0;
-	while (i <= count_flags)
+	i = count_command(lst);
+	dst = allocate_cmd(i);
+	token = lst->content;
+	get_path(token->string, env, dst);
+	if (!dst || !dst[0])
 	{
-		args[i + 1] = flags[i];
-		i++;
+		free(dst);
+		return (NULL);
 	}
-	if (count_flags == 0)
-		args[2] = NULL;
-	else
-		args[count_flags + 1] = NULL;
-	execve(args[0], args, env);
-	free_double((void **)flags);
-	free_double((void **)args);
-	return (0);
+	j = 1;
+	lst = lst->next;
+	while (j < i)
+	{
+		token = lst->content;
+		dst[j++] = token->string;
+		lst = lst->next;
+	}
+	dst[j] = NULL;
+	return (dst);
 }
 
-int	exec_commands(char *input, char **env)
+int	exec_commands(t_list *lst, char **env)
 {
-	char	*space_pos;
-	char	**args;
-	int		status;
-	char	**split_command;
-	pid_t	pid;
+	char	**cmd;
+	t_token	*token;
 
-	input = ft_strtrim(input, " ");
-	split_command = ft_split(input, ' ');
-	pid = fork();
-	if (pid == 0)
+	token = lst->content;
+	if (token->type != -1)
+		return (0);
+	cmd = full_cmd(lst, env);
+	if (!cmd)
+		return (set_or_return_exit_status(MODE_RETURN, -1));
+	if (access(cmd[0], F_OK))
+		return (set_or_return_exit_status(MODE_SET, 127));
+	if ((execve(cmd[0], cmd, env)) == -1)
 	{
-		space_pos = ft_strchr(input, ' ');
-		if (space_pos != NULL)
-			exec_commands_wf(space_pos, input, env, split_command);
-		else
+		if (ft_strchr(cmd[0], '/'))
 		{
-			args = (char **)malloc(sizeof(char *) * 2);
-			if (!args)
-				return (1);
-			args[0] = get_path(split_command, env);
-			args[1] = NULL;
-			execve(args[0], args, env);
-			free_double((void **)args);
+			error_exec(cmd[0], "is a directory\n", 126);
+			free(cmd[0]);
+			free(cmd);
+			exit(126);
 		}
-		free((void **)split_command);
-		exit(0);
+		return (1);
 	}
-	else
-		waitpid(pid, &status, 0);
 	return (0);
 }

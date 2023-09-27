@@ -6,7 +6,7 @@
 /*   By: ffornes- <ffornes-@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/26 16:31:29 by ffornes-          #+#    #+#             */
-/*   Updated: 2023/07/24 12:44:38 by ffornes-         ###   ########.fr       */
+/*   Updated: 2023/09/27 15:10:09 by laugarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,33 +15,38 @@
 #include "libft.h"
 #include "minishell.h"
 
-// Debugging - Must delete later
 #include <stdio.h>
 
-static char	**join_path_cmd(char **path, char *cmd)
+static char	**join_path_cmd(char **path, char *cmd, int i)
 {
-	int		i;
 	char	*aux;
+	char	*tmp;
+	char	*command;
 
 	i = 0;
 	while (path[i])
 	{
-		aux = path[i];
-		path[i] = ft_strjoin(path[i], "/");
-		free(aux);
-		if (!path[i])
+		command = ft_strdup(cmd);
+		if (!command)
 			return (NULL);
-		aux = path[i];
-		path[i] = ft_strjoin(path[i], cmd);
-		free(aux);
-		if (!path[i])
-			return (NULL);
+		aux = ft_strjoin(path[i], "/");
+		if (!aux)
+			return (free_double((void **)path));
+		tmp = path[i];
+		path[i] = aux;
+		free(tmp);
+		aux = ft_strjoin(path[i], cmd);
+		if (!aux)
+			return (free_double((void **)path));
+		tmp = path[i];
+		path[i] = aux;
+		free(tmp);
 		i++;
 	}
 	return (path);
 }
 
-static char	*get_right_path(char **path, char *cmd)
+static int	get_right_path(char *cmd, char **path, char **dst)
 {
 	int		i;
 	char	*out;
@@ -52,78 +57,87 @@ static char	*get_right_path(char **path, char *cmd)
 	{
 		if (!access(path[i], F_OK))
 		{
-			out = ft_strdup(path[i]);
 			if (access(path[i], X_OK))
+				return (print_error_and_return("Permission denied\n", 128));
+			else
 			{
-				put_error(cmd, 128); // Error: Path has been found but it's not executable
-				free(out);
-				return (NULL);
+				*dst = ft_strdup(path[i]);
+				if (!dst)
+					return (12);
+				return (0);
 			}
 		}
 		i++;
 	}
-	return (out);
+	return (error_exec(cmd, "command not found\n", 127));
 }
 
-static char	*get_path_util(char *str, char *cmd)
+static int	get_path_util(char *str, char *cmd, char **dst)
 {
 	char	**path;
-	char	*out;
+	char	**aux;
+	char	*tmp;
+	int		err;
 
-	str = ft_strtrim(str, "PATH=");
-	path = ft_split(str, ':');
-	free(str);
+	while (*str && *str != '=')
+		str++;
+	str++;
+	tmp = ft_strdup(str);
+	if (!tmp)
+		return (12);
+	path = ft_split(tmp, ':');
+	free(tmp);
 	if (!path)
-		return (NULL);
-	path = join_path_cmd(path, cmd);
-	out = get_right_path(path, cmd);
+		return (12);
+	aux = path;
+	path = join_path_cmd(path, cmd, -1);
+	if (!path)
+		return (12);
+	err = get_right_path(cmd, path, dst);
 	free_double((void **)path);
-	return (out);
+	if (err)
+		return (err);
+	return (0);
 }
 
-/* cmd is a command and it's arguments splitted by spaces since it's needed
- * by execve that the command and it's flags/arguments are in a char **
- * 
- * This function recieves a command and returns an allocated string containing 
- * it's path + command.
- * In order to do this, must check first if the command recieved already has 
- * it's path or needs to find it.
- * If it has it's path, it must return it.
- * If it doesn't, it appends all possible Paths with the command, in order
- * to check with access if the directory exists and it's executable, and 
- * returns the correct path. */
-char	*get_path(char **cmd, char **envp)
+static int	is_absolute_path(char *cmd)
 {
-	int		i;
-	char	*aux;
-	char	*out;
-
-	if (cmd[0][0] == '/')
+	if (ft_strchr(cmd, '/'))
 	{
-		// Comprobar que el path existe y es ejecutable
-		if (!access(cmd[0], F_OK))
+		if (!access(cmd, F_OK))
 		{
-			if (access(cmd[0], X_OK))
-				put_error(cmd[0], 128);
+			if (access(cmd, X_OK))
+				return (error_exec(cmd, "Permission denied\n", 128));
 		}
 		else
-			put_error(cmd[0], 127);
-		return (ft_strdup(cmd[0]));
+			return (error_exec(cmd, "No such file or directory\n", 127));
+		return (1);
 	}
+	return (0);
+}
+
+int	get_path(char *cmd, char **envp, char **dst)
+{
+	int		i;
+	int		err;
+	char	*aux;
+
+	err = is_absolute_path(cmd);
+	if (err == 1)
+	{
+		*dst = ft_strdup(cmd);
+		return (0);
+	}
+	else if (err)
+		return (err);
 	i = 0;
-	while (envp[i])
-	{
+	aux = NULL;
+	while (envp[i] && !aux)
 		aux = ft_strnstr(envp[i++], "PATH", 4);
-		if (aux != NULL)
-			break ;
-	}
 	if (!aux)
-	{
-		put_error(cmd[0], 127); // Error: command not found
-		return (NULL);
-	}
-	out = get_path_util(aux, cmd[0]);
-	if (!out)
-		put_error(cmd[0], 127); // Error: command not found
-	return (out);
+		return (error_exec(cmd, "command not found\n", 127));
+	err = get_path_util(aux, cmd, dst);
+	if (err == 12)
+		return (print_error_and_return("Cannot allocate memory\n", 12));
+	return (err);
 }

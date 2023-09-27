@@ -1,45 +1,35 @@
-Command [-Flag] [Arg] [Nothing]
-$[Variable]		variable de entorno == $NOMBRE="VALOR" || $NOMBRE=VALOR || $NOMBRE=(comandos)
-<< [DELIMITER]	here_doc
-> [File]		redirection
-< [File]		redirection
-Pipe
-"" ''
-() {}
-builtins:
-	export
-Nothing
+ToDo:
 
-1. Get line
-	ex: <Hola.txt cat -e random_file.txt | wc -l | echo $USER
-	1.1 Try to open the file "Hola.txt" - Look in pipex for more details
-		if "Hola.txt" does not exist: 
-			minishell: Hola.txt: No such file or directory
-			First command does not execute && flags && args are ignored
-	1.2 Locate first command
-	1.3 Locate flags
-	1.4 Try to open the file "random_file.txt"
-		if "random_file.txt" does not exist:
-			minishell: random_file.txt:  No such file or directory
-			First command does not execute.
-	1.5 Locate Pipe
-		Save stdin stdout fds with dup to not lose the reference
-		Use dup2 to redirect stdin stdout and proceed with the executions
-	1.6 Execute commands
-		First command, displays error if any file doesn't exist
-		wc -l reads from pipe and writes on pipe so no input/output can be seen
-		echo $USER 
-			looks for the variable in our env
-				if it finds it, displays the value of the variable with a \n
-				else if it doesn't find it displays a \n
+	Check Libft for unprotected mallocs
 
-Then >> Must separate arguments with pipes, and parse them individually.
+	Check Leaks
 
-	ex: <Hola.txt cat -e random_file.txt | wc -l | echo $USER
-		Tokens:
-			( <Hola.txt cat -e random_file.txt ) 
-			( | ) 
-			( wc -l )
-			( | )
-			( echo $USER )
-		Once split in tokens, must split again in minitokens to parse "'({})'"
+	Errors:
+	Implement error handling, exit status and error messages in execution
+
+	Builtins: 
+	Quitar trim de espacios del exec builtins y meterlo en el parser ANTES
+	de expandir uwu
+
+	Builtin Export:
+	Display in ascii order
+
+	Build different expansor for here_doc case
+
+	126 Command was found but could not be executed
+	127	No such file or directory
+	130 CtrlC in state EXEC
+	131 Ctrl\ in state EXEC
+
+	Repasar la libft per mallocs no protegits LMAO!
+
+
+
+	SYNTAX ERRORS:
+		/ ./ ./////// ///////// ... is a directory
+		export ARG="a b c" ... <$ARG cat ambiguos redirect
+
+Check tests: https://github.com/ChewyToast/mpanic/tree/main/test/mandatory
+
+calloc makes it so there's already a NULL value at the end of the allocation
+	which can save lines when saving char*

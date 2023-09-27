@@ -6,81 +6,81 @@
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 14:01:37 by laugarci          #+#    #+#             */
-/*   Updated: 2023/07/25 18:53:51 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/09/27 16:35:57 by laugarci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdio.h>
+#include <sys/errno.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <stdlib.h>
 #include "libft.h"
+#include "libft_bonus.h"
 #include "minishell.h"
+#include "minishell_defs.h"
+#include "parser.h"
 
-static char	**set_env(char **src)
+static void	proceed(char *input, t_list **list, t_list **env_lst, char **env)
 {
-	int		i;
-	char	**dst;
+	int	err;
 
-	i = 0;
-	while (src[i])
-		i++;
-	dst = malloc(sizeof(char **) * (i + 1));
-	if (!dst)
-		return (NULL);
-	i = 0;
-	while (src[i])
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+	add_history(input);
+	err = parse_input(input, env, list);
+	if (!err)
 	{
-		dst[i] = ft_strdup(src[i]);
-		if (!dst[i++])
-		{
-			free_double((void **)dst);
-			return (NULL);
-		}
+		*list = organize_list(*list);
+		start_execution(*list, env_lst, env);
+		ft_lstclear(list, (void *)free_token);
 	}
-	dst[i] = NULL;
-	return (dst);
+	else
+		set_or_return_exit_status(MODE_SET, err);
 }
 
-static void	exit_check(char *input)
+static int	main_loop(char *prompt, t_list **env_lst)
 {
-	if (!ft_strncmp(input, "exit\0", 5))
-	{
-		free(input);
-		exit(0);
-	}
-}
+	char	*input;
+	char	**environ;
+	t_list	*list;
 
+	environ = envlst_to_charpp(*env_lst);
+	if (!environ)
+		return (print_error_and_return("Cannot allocate memory\n", 12));
+	signal_setup(STATE_READ);
+	input = readline(prompt);
+	if (!input)
+		builtin_exit(ft_itoa(set_or_return_exit_status(MODE_RETURN, -1)));
+	if (input[0] != '\0')
+		proceed(input, &list, env_lst, environ);
+	free_double((void **)environ);
+	free(input);
+	return (0);
+}
 
 int	main(int argc, char *argv[], char *envp[])
 {
-	char	*input;
 	char	*prompt;
-	char	**env;
-	int		error_id;
+	t_list	*env_lst;
 
 	if (argc > 1)
 		exit(1);
-	env = set_env(envp);
-	if (!env) //mem error
-		return (1);
-	prompt = ft_strjoin(argv[0], " > ");
+	env_lst = set_env(envp);
+	if (!env_lst)
+		return (print_error_and_return("Cannot allocate memory\n", 12));
+	prompt = ft_strjoin((argv[0] + 2), "$ ");
 	if (!prompt)
-		return (1);
-	while (1)
 	{
-		input = readline(prompt);
-		if (input[0] != '\0' && input)
-		{
-			add_history(input);
-			exit_check(input);
-			error_id = parse_input(input, envp);
-			if (error_id)
-				put_error("minishell", error_id);
-			cmp_commands(input, env);
-		}
-		free(input);
+		ft_lstclear(&env_lst, (void *)free_var);
+		return (print_error_and_return("Cannot allocate memory\n", 12));
 	}
+	set_or_return_exit_status(MODE_SET, 0);
+	while (42)
+		if (main_loop(prompt, &env_lst))
+			break ;
+	ft_lstclear(&env_lst, (void *)free_var);
+	free(prompt);
 	clear_history();
-	return (0);
+	return (set_or_return_exit_status(MODE_RETURN, -1));
 }

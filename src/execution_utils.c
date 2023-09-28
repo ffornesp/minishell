@@ -6,7 +6,7 @@
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/27 15:36:06 by laugarci          #+#    #+#             */
-/*   Updated: 2023/09/27 15:56:57 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/09/28 10:56:57 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,21 +69,26 @@ int	gen_child(t_list *lst, t_list **env_lst, t_data *data, char **env)
 	return (pid);
 }
 
-int	get_child_status(int pid)
+int	get_child_status(int pid, t_data *data)
 {
 	int	status;
 
-	waitpid(pid, &status, 0);
-	if (WIFEXITED(status))
-		set_or_return_exit_status(MODE_SET, WEXITSTATUS(status));
-	else
-		set_or_return_exit_status(MODE_SET, 0);
-	if (WTERMSIG(status) == SIGINT)
-		return (set_or_return_exit_status(MODE_SET, 130));
-	else if (WTERMSIG(status) == SIGQUIT)
+	while (data->process_id--)
 	{
-		ft_putstr_fd("Quit: 3\n", 0);
-		return (set_or_return_exit_status(MODE_SET, 131));
+		if (pid == waitpid(0, &status, 0))
+		{
+			if (WIFEXITED(status))
+				set_or_return_exit_status(MODE_SET, WEXITSTATUS(status));
+			else
+				set_or_return_exit_status(MODE_SET, 0);
+			if (WTERMSIG(status) == SIGINT)
+				return (set_or_return_exit_status(MODE_SET, 130));
+			else if (WTERMSIG(status) == SIGQUIT)
+			{
+				ft_putstr_fd("Quit: 3\n", 0);
+				return (set_or_return_exit_status(MODE_SET, 131));
+			}
+		}
 	}
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: ffornes- <ffornes-@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/27 11:32:21 by ffornes-          #+#    #+#             */
-/*   Updated: 2023/09/27 19:58:52 by ffornes-         ###   ########.fr       */
+/*   Updated: 2023/09/28 10:56:33 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int			get_path(char *cmd, char **envp, char **dst);
 int			exec_commands(t_list *lst, char **env);
 int			start_execution(t_list *lst, t_list **env_lst, char **env);
 int			gen_child(t_list *lst, t_list **env_lst, t_data *data, char **env);
-int			get_child_status(int pid);
+int			get_child_status(int pid, t_data *data);
 
 int			type_count(t_list *lst, int type);
 int			p_type_count(t_list *lst, int type);

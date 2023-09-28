@@ -6,7 +6,7 @@
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 15:29:58 by laugarci          #+#    #+#             */
-/*   Updated: 2023/09/27 19:18:22 by ffornes-         ###   ########.fr       */
+/*   Updated: 2023/09/28 10:54:44 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,6 @@ int	execution(t_list *lst, t_list **env_lst, t_data *data, char **env)
 		lst = update_data(data, lst);
 	}
 	if (pid != 1)
-		get_child_status(pid);
+		get_child_status(pid, data);
 	return (err);
 }

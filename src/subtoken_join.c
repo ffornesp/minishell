@@ -6,7 +6,7 @@
 /*   By: ffornes- <ffornes-@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 16:17:45 by ffornes-          #+#    #+#             */
-/*   Updated: 2023/09/14 11:33:35 by ffornes-         ###   ########.fr       */
+/*   Updated: 2023/09/28 17:11:05 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,8 @@ t_list	*remove_append(t_list *list)
 		current = current->next;
 		token = current->content;
 	}
-	remove_append_util(previous, current, token);
+	if (current)
+		remove_append_util(previous, current, token);
 	return (list);
 }
 

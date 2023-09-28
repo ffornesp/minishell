@@ -6,7 +6,7 @@
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/14 21:05:30 by laugarci          #+#    #+#             */
-/*   Updated: 2023/09/26 23:21:43 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/09/28 15:54:49 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static char	*get_env_var(char *key, t_list **env_lst)
 	{
 		var = lst->content;
 		if (!ft_strncmp(var->key, key, ft_strlen(key) + 1))
-			return (++var->value);
+			return ((var->value + 1));
 		lst = lst->next;
 	}
 	return (NULL);

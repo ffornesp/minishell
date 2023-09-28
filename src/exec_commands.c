@@ -6,7 +6,7 @@
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/04 14:04:45 by laugarci          #+#    #+#             */
-/*   Updated: 2023/09/27 16:03:28 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/09/27 18:07:24 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ static char	**allocate_cmd(int size)
 {
 	char	**dst;
 
-	dst = malloc(sizeof(char *) * (size + 1));
+	dst = ft_calloc(sizeof(char *), (size + 1));
 	if (!dst)
 	{
 		print_error_and_return("Cannot allocate memory\n", 12);

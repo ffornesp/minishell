@@ -1,32 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec_pwd.c                                         :+:      :+:    :+:   */
+/*   builtin_env.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/09/04 11:28:34 by laugarci          #+#    #+#             */
-/*   Updated: 2023/09/04 17:55:30 by laugarci         ###   ########.fr       */
+/*   Created: 2023/09/19 18:13:09 by laugarci          #+#    #+#             */
+/*   Updated: 2023/09/27 19:17:04 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include "libft.h"
+#include <stdio.h>
 #include "minishell.h"
-#include "libft_bonus.h"
-#include "parser.h"
 
-int	exec_pwd(void)
+int	builtin_env(char **env)
 {
-	char	*cwd;
+	int	i;
 
-	cwd = getcwd(NULL, 0);
-	if (cwd != NULL)
-	{
-		printf("%s\n", cwd);
-		free(cwd);
-	}
+	i = 0;
+	while (env[i] != NULL)
+		printf("%s\n", env[i++]);
 	return (0);
 }

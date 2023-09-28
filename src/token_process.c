@@ -6,7 +6,7 @@
 /*   By: ffornes- <ffornes-@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:34:52 by ffornes-          #+#    #+#             */
-/*   Updated: 2023/09/27 16:19:26 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/09/27 19:01:38 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,31 +72,19 @@ static t_list	*exp_token(t_list *lst, t_token *tkn, char **envp)
 	return (lst);
 }
 
-static int	process_tokens_util(t_list **token_list)
-{
-	if (join_subtoken(token_list))
-		return (12);
-	clean_redirects(token_list);
-	remove_duplicates(token_list);
-	return (0);
-}
-
-int	process_tokens(t_list **token_list, char *envp[])
+static int	process_tokens_util(t_list **token_list, char *envp[])
 {
 	t_list	*tmp_lst;
 	t_token	*aux;
 
-	tmp_lst = set_type(token_list);
-	if (syntax_error_check(tmp_lst))
-		return (258);
-	if (process_subtokens(&tmp_lst))
-		return (print_error_and_return("Cannot allocate memory\n", 12));
+	tmp_lst = *token_list;
 	aux = tmp_lst->content;
 	while (aux->string)
 	{
 		if (remove_quotes(&aux))
 			return (print_error_and_return("Cannot allocate memory\n", 12));
-		if (ft_strchr(aux->string, '$') && (aux->quotes == 2 || !aux->quotes))
+		if (aux->type != HERE_DOC && ft_strchr(aux->string, '$')
+			&& (aux->quotes == 2 || !aux->quotes))
 		{
 			tmp_lst = exp_token(tmp_lst, aux, envp);
 			if (!tmp_lst)
@@ -105,7 +93,24 @@ int	process_tokens(t_list **token_list, char *envp[])
 		tmp_lst = tmp_lst->next;
 		aux = tmp_lst->content;
 	}
-	if (process_tokens_util(token_list))
+	return (0);
+}
+
+int	process_tokens(t_list **token_list, char *envp[])
+{
+	int	err;
+
+	set_type(token_list);
+	if (syntax_error_check(*token_list))
+		return (258);
+	clean_redirects(token_list);
+	if (process_subtokens(token_list))
 		return (print_error_and_return("Cannot allocate memory\n", 12));
+	err = process_tokens_util(token_list, envp);
+	if (err)
+		return (err);
+	if (join_subtoken(token_list))
+		return (print_error_and_return("Cannot allocate memory\n", 12));
+	remove_duplicates(token_list);
 	return (0);
 }

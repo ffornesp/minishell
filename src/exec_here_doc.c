@@ -6,7 +6,7 @@
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/19 13:29:17 by laugarci          #+#    #+#             */
-/*   Updated: 2023/09/27 15:01:47 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/09/27 20:00:32 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 #include <readline/history.h>
 #include <fcntl.h>
 
-static char	*find_delimiter(t_list *lst, int id)
+static char	*find_delimiter(t_list *lst, int id, int *flag)
 {
 	t_token	*token;
 	int		i;
@@ -41,16 +41,33 @@ static char	*find_delimiter(t_list *lst, int id)
 		lst = lst->next;
 		token = lst->content;
 	}
+	if (token->quotes)
+		*flag = 1;
 	return (token->string);
 }
 
-static void	close_fds(int *fds)
+static int	input_heredoc_util(char *input, int *fds, int flag, char **env)
 {
+	char	*aux;
+
+	aux = input;
+	if (!flag)
+	{
+		input = expand_evals(input, env);
+		if (!input)
+		{
+			free(aux);
+			return (12);
+		}
+	}
+	write(fds[1], input, ft_strlen(input));
+	free(input);
 	close(fds[1]);
 	close(fds[0]);
+	return (0);
 }
 
-static int	input_heredoc(char *del, int *fds)
+static int	input_heredoc(char *del, int *fds, int flag, char **env)
 {
 	char	*aux;
 	char	*input;
@@ -72,9 +89,8 @@ static int	input_heredoc(char *del, int *fds)
 		if (!text)
 			return (12);
 	}
-	write(fds[1], text, ft_strlen(text));
-	free(input);
-	close_fds(fds);
+	if (input_heredoc_util(text, fds, flag, env))
+		return (12);
 	return (0);
 }
 
@@ -86,19 +102,21 @@ static void	check_signal(int pid)
 	set_or_return_exit_status(MODE_SET, WEXITSTATUS(status));
 }
 
-int	here_doc(t_list *lst, int id)
+int	here_doc(t_list *lst, int id, char **env)
 {
 	char	*del;
 	int		fds[2];
 	int		pid;
+	int		flag;
 
-	del = find_delimiter(lst, id);
+	flag = 0;
+	del = find_delimiter(lst, id, &flag);
 	pipe(fds);
 	pid = fork();
 	if (pid == 0)
 	{
 		signal_setup(STATE_HDOC);
-		if (input_heredoc(del, fds))
+		if (input_heredoc(del, fds, flag, env))
 			exit(12);
 		exit(0);
 	}

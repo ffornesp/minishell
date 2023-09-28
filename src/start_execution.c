@@ -6,7 +6,7 @@
 /*   By: ffornes- <ffornes-@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 17:09:21 by ffornes-          #+#    #+#             */
-/*   Updated: 2023/09/27 15:01:35 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/09/27 20:01:10 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-static int	setup_data(t_list *lst, t_data *data)
+static int	setup_data(t_list *lst, t_data *data, char **env)
 {
 	int	i;
 
@@ -31,7 +31,7 @@ static int	setup_data(t_list *lst, t_data *data)
 			return (12);
 		while (i < data->hd_total)
 		{
-			data->hdoc_fds[i] = here_doc(lst, i);
+			data->hdoc_fds[i] = here_doc(lst, i, env);
 			if (data->hdoc_fds[i] < 0)
 			{
 				free(data->hdoc_fds);
@@ -69,7 +69,7 @@ int	start_execution(t_list *lst, t_list **env_lst, char **env)
 	data.pipe_count = process_count;
 	if (!process_count)
 		process_count = 1;
-	err = setup_data(lst, &data);
+	err = setup_data(lst, &data, env);
 	if (err > 0)
 		return (err);
 	signal_setup(STATE_EXEC);

@@ -6,7 +6,7 @@
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/22 15:29:58 by laugarci          #+#    #+#             */
-/*   Updated: 2023/09/27 15:57:37 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/09/27 19:18:22 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,11 @@ int	builtin_check(t_list *lst, t_list **env_lst, char **env)
 	if (ft_strncmp(token->string, "cd\0", 3) == 0)
 		err = builtin_cd(lst, env_lst);
 	else if (ft_strncmp(token->string, "echo\0", 5) == 0)
-		err = exec_echo(lst);
+		err = builtin_echo(lst);
 	else if (ft_strncmp(token->string, "pwd\0", 4) == 0)
-		err = exec_pwd();
+		err = builtin_pwd();
 	else if (ft_strncmp(token->string, "env\0", 4) == 0)
-		err = exec_env(env);
+		err = builtin_env(env);
 	else if (ft_strncmp(token->string, "unset\0", 6) == 0)
 		err = builtin_unset(lst, env_lst);
 	else if (ft_strncmp(token->string, "export\0", 7) == 0)
@@ -55,6 +55,8 @@ static int	parent_exec(t_list *lst, t_list **env_lst, char **env, t_data *data)
 	token = lst->content;
 	stdio_fds[0] = dup(STDIN_FILENO);
 	stdio_fds[1] = dup(STDOUT_FILENO);
+	if (stdio_fds[0] == -1 || stdio_fds[1] == -1)
+		return (1);
 	err = dup_read(lst, data);
 	if (err)
 		return (err);
@@ -62,8 +64,12 @@ static int	parent_exec(t_list *lst, t_list **env_lst, char **env, t_data *data)
 	if (dup_write(lst))
 		return (1);
 	err = builtin_check(lst, env_lst, env);
-	dup2(stdio_fds[0], STDIN_FILENO);
-	dup2(stdio_fds[1], STDOUT_FILENO);
+	if (dup2(stdio_fds[0], STDIN_FILENO) == -1)
+		return (1);
+	if (dup2(stdio_fds[1], STDOUT_FILENO) == -1)
+		return (1);
+	close(stdio_fds[0]);
+	close(stdio_fds[1]);
 	return (err);
 }
 

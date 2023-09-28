@@ -6,7 +6,7 @@
 /*   By: ffornes- <ffornes-@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/24 16:52:35 by ffornes-          #+#    #+#             */
-/*   Updated: 2023/09/27 14:17:23 by ffornes-         ###   ########.fr       */
+/*   Updated: 2023/09/27 19:03:21 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ int	dup_write(t_list *lst)
 		else
 			fd = open(output, O_CREAT | O_TRUNC | O_WRONLY, 0666);
 		if (fd < 0)
-			return (1);
+			return (print_error_and_return("Error: Failed open\n", 1));
 		if (dup2(fd, STDOUT_FILENO) == -1)
 			return (1);
 		close(fd);

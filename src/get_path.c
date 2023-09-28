@@ -6,7 +6,7 @@
 /*   By: ffornes- <ffornes-@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/26 16:31:29 by ffornes-          #+#    #+#             */
-/*   Updated: 2023/09/27 15:10:09 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/09/27 17:59:02 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,10 @@ static char	**join_path_cmd(char **path, char *cmd, int i)
 {
 	char	*aux;
 	char	*tmp;
-	char	*command;
 
 	i = 0;
 	while (path[i])
 	{
-		command = ft_strdup(cmd);
-		if (!command)
-			return (NULL);
 		aux = ft_strjoin(path[i], "/");
 		if (!aux)
 			return (free_double((void **)path));

@@ -6,7 +6,7 @@
 /*   By: ffornes- <ffornes-@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/20 18:10:10 by ffornes-          #+#    #+#             */
-/*   Updated: 2023/09/27 15:00:50 by ffornes-         ###   ########.fr       */
+/*   Updated: 2023/09/27 17:54:33 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,6 @@ char	**envlst_to_charpp(t_list *lst)
 			if (!out[i++])
 				return (free_double((void **)out));
 		}
-		else
-			out[i] = ft_strdup(var->key);
 		lst = lst->next;
 	}
 	out[i] = NULL;

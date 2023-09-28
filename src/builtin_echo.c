@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec_echo.c                                        :+:      :+:    :+:   */
+/*   builtin_echo.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 11:30:35 by laugarci          #+#    #+#             */
-/*   Updated: 2023/09/27 11:40:06 by ffornes-         ###   ########.fr       */
+/*   Updated: 2023/09/27 19:13:55 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	print_echo(t_list *aux, int flag)
 		printf("\n");
 }
 
-int	exec_echo(t_list *lst)
+int	builtin_echo(t_list *lst)
 {
 	t_token	*token;
 	t_list	*aux;

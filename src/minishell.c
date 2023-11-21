@@ -6,7 +6,7 @@
 /*   By: laugarci <laugarci@student.42barcel>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/05 14:01:37 by laugarci          #+#    #+#             */
-/*   Updated: 2023/09/28 09:47:50 by laugarci         ###   ########.fr       */
+/*   Updated: 2023/11/21 11:44:21 by ffornes-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,12 +64,13 @@ int	main(int argc, char *argv[], char *envp[])
 	char	*prompt;
 	t_list	*env_lst;
 
+	(void) argv;
 	if (argc > 1)
 		exit(1);
 	env_lst = set_env(envp);
 	if (!env_lst)
 		return (print_error_and_return("Cannot allocate memory\n", 12));
-	prompt = ft_strjoin((argv[0] + 2), "$ ");
+	prompt = ft_strdup("minishell$");
 	if (!prompt)
 	{
 		ft_lstclear(&env_lst, (void *)free_var);

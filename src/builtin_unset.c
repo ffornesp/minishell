@@ -80,7 +80,6 @@ static int	unset_loop(t_token *token, t_list **env_lst)
 int	builtin_unset(t_list *lst, t_list **env_lst)
 {
 	t_token	*token;
-	t_list	*var_lst;
 	int		err;
 
 	lst = lst->next;
@@ -88,7 +87,6 @@ int	builtin_unset(t_list *lst, t_list **env_lst)
 	if ((!token->string || !*token->string) && token->quotes < 0)
 		return (0);
 	err = 0;
-	var_lst = *env_lst;
 	while (lst->next)
 	{
 		if (!is_valid_input(token->string, 0))

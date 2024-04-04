@@ -70,12 +70,10 @@ int	syntax_error_check(t_list *lst)
 	t_token	*token;
 	int		type;
 	int		error;
-	int		state;
 
 	token = lst->content;
 	if (token->type == PIPE)
 		return (syntax_error(token->string));
-	state = 0;
 	error = 0;
 	while (token->string && !error)
 	{

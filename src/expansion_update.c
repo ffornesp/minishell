@@ -52,7 +52,6 @@ char	*update_input(char *input, char *str)
 {
 	int		i;
 	char	*tmp;
-	char	*aux;
 
 	i = 0;
 	while (input[i])
@@ -68,7 +67,6 @@ char	*update_input(char *input, char *str)
 		return (NULL);
 	if (i > 1)
 		ft_strlcpy(tmp, input, i);
-	aux = str;
 	tmp = update_input_util(i, tmp, str, input);
 	free(str);
 	return (tmp);

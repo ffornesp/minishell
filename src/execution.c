@@ -48,11 +48,9 @@ int	builtin_check(t_list *lst, t_list **env_lst, char **env)
 
 static int	parent_exec(t_list *lst, t_list **env_lst, char **env, t_data *data)
 {
-	t_token	*token;
 	int		err;
 	int		stdio_fds[2];
 
-	token = lst->content;
 	stdio_fds[0] = dup(STDIN_FILENO);
 	stdio_fds[1] = dup(STDOUT_FILENO);
 	if (stdio_fds[0] == -1 || stdio_fds[1] == -1)

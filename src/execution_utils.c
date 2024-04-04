@@ -17,6 +17,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 static int	child_exec(t_list *lst, t_list **env_lst, char **env)
 {
@@ -31,9 +33,7 @@ static int	child_exec(t_list *lst, t_list **env_lst, char **env)
 static void	exec_utils(t_list *lst, t_list **env_lst, t_data *data, char **env)
 {
 	int		err;
-	t_token	*token;
 
-	token = lst->content;
 	err = dup_read(lst, data);
 	if (err)
 		exit(err);

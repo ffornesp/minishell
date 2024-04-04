@@ -21,6 +21,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 static char	*find_delimiter(t_list *lst, int id, int *flag)
 {

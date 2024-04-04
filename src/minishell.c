@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <signal.h>
 #include <stdio.h>
 #include <sys/errno.h>
 #include <readline/readline.h>

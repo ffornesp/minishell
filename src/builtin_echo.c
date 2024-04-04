@@ -46,9 +46,6 @@ int	count_flags(t_list *lst)
 
 t_list	*move_list(t_list *aux, int flag)
 {
-	t_token	*token;
-
-	token = aux->content;
 	while (flag > 0)
 	{
 		aux = aux->next;

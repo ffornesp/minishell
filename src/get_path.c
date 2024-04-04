@@ -45,10 +45,8 @@ static char	**join_path_cmd(char **path, char *cmd, int i)
 static int	get_right_path(char *cmd, char **path, char **dst)
 {
 	int		i;
-	char	*out;
 
 	i = 0;
-	out = NULL;
 	while (path[i])
 	{
 		if (!access(path[i], F_OK))
@@ -71,7 +69,6 @@ static int	get_right_path(char *cmd, char **path, char **dst)
 static int	get_path_util(char *str, char *cmd, char **dst)
 {
 	char	**path;
-	char	**aux;
 	char	*tmp;
 	int		err;
 
@@ -85,7 +82,6 @@ static int	get_path_util(char *str, char *cmd, char **dst)
 	free(tmp);
 	if (!path)
 		return (12);
-	aux = path;
 	path = join_path_cmd(path, cmd, -1);
 	if (!path)
 		return (12);

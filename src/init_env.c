@@ -58,9 +58,7 @@ t_list	*set_env(char *envp[])
 	t_list	*out;
 	t_list	*aux;
 	t_env	*var;
-	int		i;
 
-	i = 0;
 	out = NULL;
 	while (*envp)
 	{
